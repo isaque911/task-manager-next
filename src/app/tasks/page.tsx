@@ -4,6 +4,9 @@ import TaskSummary from "@/components/TaskSummary";
 import TaskProvider from "@/contexts/TaskContext";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Tasks() {
   const rawTasks = await prisma.task.findMany({
     where: {
