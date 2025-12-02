@@ -37,12 +37,13 @@ export default function TaskProvider({
 
   async function filterTask(query: string) {
     try {
+      const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "";
       const url = query
         ? `/api/tasks?query=${encodeURIComponent(query)}`
         : "/api/tasks";
       const res = await fetch(url, {
         headers: {
-          "x-api-key": "segredo-do-bootcamp-123",
+          "x-api-key": API_KEY,
         },
       });
       const data = await res.json();

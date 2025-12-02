@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
     if (request.nextUrl.pathname.startsWith("/api")) {
         const apiKey = request.headers.get("x-api-key")
-        const secretKey = "segredo-do-bootcamp-123"
+        const secretKey = process.env.API_SECRET_KEY
 
         if(apiKey !== secretKey) {
             return NextResponse.json(
