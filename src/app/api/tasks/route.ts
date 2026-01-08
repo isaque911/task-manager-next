@@ -11,10 +11,7 @@ export async function GET(request: NextRequest  ) {
     
   const tasks = await prisma.task.findMany({ 
   where: {
-  OR: [
-    { deletedAt: { isSet: false } }, 
-    { deletedAt: null }              
-  ],
+  deletedAt: null,
   title: {
     contains: query,
     mode: "insensitive",

@@ -18,14 +18,14 @@ export default async function Tasks({
 
   // Busca Paginada + Soft Delete
   const rawTasks = await prisma.task.findMany({
-    where: { OR: [{ deletedAt: null }, { deletedAt: { isSet: false } }] },
+    where: { deletedAt: null },
     orderBy: { createdAt: "desc" },
     take: itemsPerPage,
     skip: skip,
   });
 
   const totalTasks = await prisma.task.count({
-    where: { OR: [{ deletedAt: null }, { deletedAt: { isSet: false } }] },
+    where: { deletedAt: null },
   });
   const totalPages = Math.ceil(totalTasks / itemsPerPage);
 
