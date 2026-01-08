@@ -37,7 +37,7 @@ export default function TaskProvider({
 
   async function filterTask(query: string) {
     try {
-      const API_KEY = process.env.NEXT_PUBLIC_API_KEY ?? "";
+      const API_KEY = process.env.NEXT_PUBLIC_KEY ?? "";
       const url = query
         ? `/api/tasks?query=${encodeURIComponent(query)}`
         : "/api/tasks";
