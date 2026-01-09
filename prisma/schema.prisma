@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("URL_DO_BANCO_DE_DADOS")
+  url      = env("DATABASE_URL")
 }
 
 enum Priority {
