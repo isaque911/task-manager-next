@@ -6,7 +6,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
 import { createTask, deleteAction, toggleAction } from "@/action";
 
 export interface Task {
@@ -37,26 +36,34 @@ export default function TaskProvider({
 
   async function filterTask(query: string) {
     try {
-      const API_KEY = process.env.NEXT_PUBLIC_KEY ?? "";
+      // Usando fallback seguro para a chave de API no cliente
+      const API_KEY = process.env.NEXT_PUBLIC_KEY || "";
       const url = query
         ? `/api/tasks?query=${encodeURIComponent(query)}`
         : "/api/tasks";
+      
       const res = await fetch(url, {
         headers: {
           "x-api-key": API_KEY,
         },
       });
+
+      if (!res.ok) {
+        throw new Error(`Erro na API: ${res.status}`);
+      }
+
       const data = await res.json();
-      setTasks(data);
+      if (Array.isArray(data)) {
+        setTasks(data);
+      }
     } catch (err) {
-      console.error("Erro ao filtrar tasks", err);
+      console.error("Erro ao filtrar tasks:", err);
     }
   }
 
   async function addTask(title: string, priority: string) {
     try {
       const newTask = await createTask(title, priority);
-
       setTasks((prev) => [newTask, ...prev]);
     } catch (err) {
       alert("Erro ao criar tarefa (verifique o tamanho do texto)");
@@ -76,9 +83,7 @@ export default function TaskProvider({
     try {
       const task = tasks.find((t) => t.id === id);
       if (!task) return;
-
       await toggleAction(id, task.completed);
-
       setTasks((prev) =>
         prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
       );
@@ -98,10 +103,8 @@ export default function TaskProvider({
 
 export function useTasks() {
   const ctx = useContext(TasksContext);
-
   if (!ctx) {
     throw new Error("useTasks deve ser usado dentro de <TasksProvider>");
   }
-
   return ctx;
 }
