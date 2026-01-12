@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 // GET /api/tasks
 export async function GET(request: NextRequest) {
@@ -27,8 +28,15 @@ export async function GET(request: NextRequest) {
 
 // POST /api/tasks
 export async function POST(req: Request) {
-    const body = await req.json();
+    const session = await auth();
+    if (!session?.user?.id) {
+        return NextResponse.json(
+            { error: "Não autorizado" },
+            { status: 401 }
+        );
+    }
 
+    const body = await req.json();
     const title = String(body.title ?? "").trim();
     const priority = body.priority ?? "Low";
     
@@ -50,7 +58,8 @@ export async function POST(req: Request) {
         data: {
             title,
             priority: priority,
-            completed: false
+            completed: false,
+            userId: session.user.id // Adicionado para corrigir o erro de build
         },
     });
 
