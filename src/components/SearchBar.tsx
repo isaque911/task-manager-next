@@ -1,31 +1,36 @@
 "use client";
-import { useRouter, useSearchParams } from "next/navigation";
+
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function SearchBar() {
-  const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
 
-  function handleSearch(term: string) {
-    const params = new URLSearchParams(searchParams.toString());
+  // Espera 300ms parar de digitar para buscar (Performance)
+  const handleSearch = useDebouncedCallback((term: string) => {
+    const params = new URLSearchParams(searchParams);
+    
+    // Reseta para página 1 se mudar a busca
+    params.set("page", "1");
+
     if (term) {
       params.set("query", term);
     } else {
       params.delete("query");
     }
-    // Sempre reseta para a página 1 ao iniciar uma nova busca
-    params.set("page", "1"); 
     
-    router.push(`/tasks?${params.toString()}`);
-  }
+    replace(`${pathname}?${params.toString()}`);
+  }, 300);
 
   return (
     <div className="mb-4">
       <input
-        type="text"
+        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all"
         placeholder="Buscar tarefas..."
-        className="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        defaultValue={searchParams.get("query")?.toString()}
         onChange={(e) => handleSearch(e.target.value)}
+        defaultValue={searchParams.get("query")?.toString()}
       />
     </div>
   );
