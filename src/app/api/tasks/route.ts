@@ -1,49 +1,49 @@
-
-import {type  NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 // GET /api/tasks
-export async function GET(request: NextRequest  ) {
-    const searchParams = request.nextUrl.searchParams
-    const query = searchParams.get("query") ?? ""
+export async function GET(request: NextRequest) {
+    const searchParams = request.nextUrl.searchParams;
+    const query = searchParams.get("query") ?? "";
+    const page = Number(searchParams.get("page")) || 1;
+    const itemsPerPage = 5;
+    const skip = (page - 1) * itemsPerPage;
 
-   
-    
-  const tasks = await prisma.task.findMany({ 
-  where: {
-  deletedAt: null,
-  title: {
-    contains: query,
-    mode: "insensitive",
-  },
-},
-    orderBy: { createdAt: "desc" },
-  });
+    const tasks = await prisma.task.findMany({
+        where: {
+            deletedAt: null,
+            title: {
+                contains: query,
+                mode: "insensitive",
+            },
+        },
+        orderBy: { createdAt: "desc" },
+        take: itemsPerPage,
+        skip: skip,
+    });
 
-
-
-  return NextResponse.json(tasks);
+    return NextResponse.json(tasks);
 }
 
 // POST /api/tasks
-
 export async function POST(req: Request) {
-    const body = await req.json()
+    const body = await req.json();
 
-    const title = String(body.title ?? "").trim()
-    const priority = body.priority ?? "Low"
+    const title = String(body.title ?? "").trim();
+    const priority = body.priority ?? "Low";
+    
     if (title.length > 40) {
-      console.log("Tamanho maximo ultrapassado")
-    return NextResponse.json(
-        { error: "O título não pode ter mais de 40 caracteres." },
-        { status: 400 } 
-      );
+        return NextResponse.json(
+            { error: "O título não pode ter mais de 40 caracteres." },
+            { status: 400 }
+        );
     }
+    
     if (!title) {
         return NextResponse.json(
-            {error: "Precisa de título"},
-            {status: 400}
-        )
+            { error: "Precisa de título" },
+            { status: 400 }
+        );
     }
 
     const task = await prisma.task.create({
@@ -52,8 +52,7 @@ export async function POST(req: Request) {
             priority: priority,
             completed: false
         },
-    })
+    });
 
-    return NextResponse.json(task,{status:201})
+    return NextResponse.json(task, { status: 201 });
 }
-
