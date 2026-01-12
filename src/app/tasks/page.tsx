@@ -75,12 +75,12 @@ export default async function Tasks({
         <div className="text-center p-8 border border-slate-800 rounded-lg bg-slate-900">
           <h1 className="text-2xl font-bold text-red-500">Erro no Servidor</h1>
           <p className="text-slate-400 mt-2">Não foi possível carregar suas tarefas. Verifique sua conexão com o banco de dados.</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition"
+          <a 
+            href="/tasks"
+            className="inline-block mt-4 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700 transition"
           >
             Tentar Novamente
-          </button>
+          </a>
         </div>
       </div>
     );
