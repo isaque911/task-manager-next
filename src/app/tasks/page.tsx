@@ -17,8 +17,8 @@ export default async function Tasks({
   const session = await auth();
   
   if (!session?.user?.id) {
-    redirect("/");
-  }
+  redirect("/api/auth/signin");
+}
 
   try {
     const params = await searchParams;
