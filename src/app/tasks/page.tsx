@@ -5,30 +5,32 @@ import TaskProvider from "@/contexts/TaskContext";
 import PaginationControls from "@/components/PaginationControls";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // Corrige bug de cache na Vercel
 
 export default async function Tasks({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ page?: string }>; // Async
 }) {
-  const page = Number(searchParams.page) || 1;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
   const itemsPerPage = 5;
   const skip = (page - 1) * itemsPerPage;
 
-  // Busca Paginada + Soft Delete
+  // Busca Blindada (Null ou Unset)
   const rawTasks = await prisma.task.findMany({
-    where: { deletedAt: null },
+    where: { OR: [{ deletedAt: null }, { deletedAt: { isSet: false } }] },
     orderBy: { createdAt: "desc" },
     take: itemsPerPage,
     skip: skip,
   });
 
   const totalTasks = await prisma.task.count({
-    where: { deletedAt: null },
+    where: { OR: [{ deletedAt: null }, { deletedAt: { isSet: false } }] },
   });
   const totalPages = Math.ceil(totalTasks / itemsPerPage);
 
+  // Serialização de Datas
   const initialData = rawTasks.map((task) => ({
     ...task,
     createdAt: task.createdAt.toISOString(),
