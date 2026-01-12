@@ -29,7 +29,7 @@ export default async function Tasks({
 
     // Consulta simplificada e segura
     const whereClause: any = {
-      userId: session.user.id,
+      userId: session?.user?.id || "",
       AND: [
         { OR: [{ deletedAt: null }, { deletedAt: { isSet: false } }] },
         { title: { contains: query, mode: "insensitive" } }
@@ -55,7 +55,7 @@ export default async function Tasks({
       id: task.id,
       title: task.title || "Tarefa sem título",
       completed: Boolean(task.completed),
-      userId: task.userId || session.user.id,
+      userId: task.userId || session?.user?.id || "",
       createdAt: task.createdAt instanceof Date ? task.createdAt.toISOString() : new Date().toISOString(),
       deletedAt: task.deletedAt instanceof Date ? task.deletedAt.toISOString() : null,
     }));
