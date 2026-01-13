@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import { Toaster } from "react-hot-toast";
+import {SessionProvider} from "next-auth/react"; 
+import UserMenu from "@/components/UserMenu";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-950 text-slate-50 min-h-screen flex flex-col`}
       >
+	<SessionProvider>
         <header className="border-b border-slate-800 bg-slate-950/50 backdrop-blur-md sticky top-0 z-50">
           <nav className="max-w-4xl mx-auto flex items-center justify-between px-4 py-4">
             <Link href="/" className="font-bold text-lg tracking-tight">
@@ -45,6 +48,7 @@ export default function RootLayout({
               <Link href="/" className="hover:text-blue-400 transition">Home</Link>
               <Link href="/tasks" className="hover:text-blue-400 transition">Tarefas</Link>
               <Link href="/about" className="hover:text-blue-400 transition">Sobre</Link>
+	      <UserMenu/>
             </div>
           </nav>
         </header>
@@ -54,7 +58,8 @@ export default function RootLayout({
         <footer className="py-8 border-t border-slate-900 text-center text-slate-500 text-xs">
           &copy; {new Date().getFullYear()} Task Manager - Isaque
         </footer>
-        <Toaster position="top-center" />
+        <Toaster position="top" />
+	</SessionProvider>
       </body>
     </html>
   );
