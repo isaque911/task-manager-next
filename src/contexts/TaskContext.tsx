@@ -2,17 +2,19 @@
 import {
   createContext,
   useContext,
-  useEffect,
+  useEffect, 
   useState,
   type ReactNode,
 } from "react";
-import { createTask, deleteAction, toggleAction } from "@/action";
+import { createTask, deleteAction, toggleAction } from "@/app/actions";
+import toast from "react-hot-toast";
 
 export interface Task {
   id: string;
   title: string;
   completed: boolean;
   priority: "High" | "Mid" | "Low";
+  userId?: string; 
 }
 
 interface TasksContextType {
@@ -20,53 +22,34 @@ interface TasksContextType {
   addTask: (title: string, priority: string) => Promise<void>;
   removeTask: (id: string) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
-  filterTask: (query: string) => Promise<void>;
 }
 
 const TasksContext = createContext<TasksContextType | null>(null);
 
-export default function TaskProvider({
-  children,
-  initialTasks = [],
-}: {
+export default function TaskProvider({ 
+  children, 
+  initialTasks = [] // Recebe do servidor (page.tsx)
+}: { 
   children: ReactNode;
   initialTasks?: Task[];
 }) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
 
-  async function filterTask(query: string) {
-    try {
-      // Usando fallback seguro para a chave de API no cliente
-      const API_KEY = process.env.NEXT_PUBLIC_KEY || "";
-      const url = query
-        ? `/api/tasks?query=${encodeURIComponent(query)}`
-        : "/api/tasks";
-      
-      const res = await fetch(url, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error(`Erro na API: ${res.status}`);
-      }
-
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        setTasks(data);
-      }
-    } catch (err) {
-      console.error("Erro ao filtrar tasks:", err);
-    }
-  }
+  // Sempre que o servidor mandar dados novos (mudou página ou busca), atualiza a tela.
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
 
   async function addTask(title: string, priority: string) {
     try {
+      // Chama Server Action
       const newTask = await createTask(title, priority);
+      
+      // Atualiza localmente 
       setTasks((prev) => [newTask, ...prev]);
+      toast.success("Tarefa criada!");
     } catch (err) {
-      alert("Erro ao criar tarefa (verifique o tamanho do texto)");
+      toast.error("Erro ao criar tarefa");
     }
   }
 
@@ -74,8 +57,9 @@ export default function TaskProvider({
     try {
       await deleteAction(id);
       setTasks((prev) => prev.filter((task) => task.id !== id));
+      toast.success("Tarefa removida");
     } catch (err) {
-      alert("Erro ao deletar");
+      toast.error("Erro ao deletar");
     }
   }
 
@@ -83,19 +67,21 @@ export default function TaskProvider({
     try {
       const task = tasks.find((t) => t.id === id);
       if (!task) return;
+
       await toggleAction(id, task.completed);
+
       setTasks((prev) =>
-        prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+        prev.map((t) =>
+          t.id === id ? { ...t, completed: !t.completed } : t
+        )
       );
     } catch (err) {
-      alert("Erro ao atualizar");
+      toast.error("Erro ao atualizar");
     }
   }
 
   return (
-    <TasksContext.Provider
-      value={{ tasks, addTask, toggleTask, removeTask, filterTask }}
-    >
+    <TasksContext.Provider value={{ tasks, addTask, toggleTask, removeTask }}>
       {children}
     </TasksContext.Provider>
   );
