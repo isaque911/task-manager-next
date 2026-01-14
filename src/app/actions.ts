@@ -88,7 +88,7 @@ if (existingUser) {
   throw new Error("Este e-mail já esta cadastrado.");
 }
 
-const hashedPassword = awaitbcrypt.has(password, 10);
+const hashedPassword = await bcrypt.hash(password, 10);
 
 try {
   await prisma.user.create({
