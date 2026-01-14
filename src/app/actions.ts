@@ -70,37 +70,38 @@ export async function toggleAction(id: string, currentStatus: boolean) {
 }
 
 // 4. Criar Usuário
-export async function registerUser(formData:FormData) {
-const name = formData.get("name") as string;
+export async function registerUser(formData: FormData) {
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-const email = formData.get("email") as string;
+  if (!name || !email || !password) {
+    throw new Error("Preenche todos os campos.");
+  }
 
-const password = formData.get("password") as string;
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+  
+  if (existingUser) {
+    throw new Error("Este e-mail já esta cadastrado.");
+  }
 
-if (!name || !email || !password) {
- throw new Error("Preenche todos os campos.");
-}
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-const existingUser = await prisma.user.findUnique({
-	where: {email},
-});
-if (existingUser) {
-  throw new Error("Este e-mail já esta cadastrado.");
-}
+  try {
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
+    });
+  } catch (error) {
+    console.error("Erro ao criar conta", error);
+    throw new Error("Erro ao criar usuário.");
+  }
 
-const hashedPassword = await bcrypt.hash(password, 10);
-
-try {
-  await prisma.user.create({
-   data: {
-    name,
-    email,
-    password: hashedPassword,
-},
-});
-} catch (error) {
-  console.error("Erro ao criar conta");
-}
-
-redirect("/auth/signin");
+  // O REDIRECT PRECISA FICAR FORA E DEPOIS DO CATCH
+  redirect("/auth/signin");
 }
