@@ -58,7 +58,7 @@ export default function RootLayout({
         <footer className="py-8 border-t border-slate-900 text-center text-slate-500 text-xs">
           &copy; {new Date().getFullYear()} Task Manager - Isaque
         </footer>
-        <Toaster position="top" />
+        <Toaster position="top-center" />
 	</SessionProvider>
       </body>
     </html>
