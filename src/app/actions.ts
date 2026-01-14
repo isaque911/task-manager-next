@@ -1,5 +1,5 @@
 "use server";
-import bcript from "bycriptjs";
+import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
