@@ -102,5 +102,5 @@ try {
   console.error("Erro ao criar conta");
 }
 
-redirect("/auth/singin");
+redirect("/auth/signin");
 }
