@@ -1,5 +1,6 @@
 "use server";
-
+import bycript from "bycriptjs";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
@@ -66,4 +67,40 @@ export async function toggleAction(id: string, currentStatus: boolean) {
   });
   
   revalidatePath("/");
+}
+
+// 4. Criar Usuário
+export async function registerUser(formData:FormData) {
+const name = formData.get("name") as string;
+
+const email = formData.get("email") as string;
+
+const password = formData.get("password") as string;
+
+if (!name || !email || !password) {
+ throw new Error("Preenche todos os campos.");
+}
+
+const existingUser = await prisma.user.findUnique({
+	where: {email},
+});
+if (existingUser) {
+  throw new Error("Este e-mail já esta cadastrado.");
+}
+
+const hashedPassword = awaitbcrypt.has(password, 10);
+
+try {
+  await prisma.user.create({
+   data: {
+    name,
+    email,
+    password: hashedPassword,
+},
+});
+} catch (error) {
+  console.error("Erro ao criar conta");
+}
+
+redirect("/auth/singin");
 }
