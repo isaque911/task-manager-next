@@ -1,11 +1,9 @@
 "use server";
 import bcrypt from "bcryptjs";
-import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 
-// 1. Criar Tarefa (Com ID do usuário)
 export async function createTask(title: string, priority: string) {
   const session = await auth();
   
@@ -28,7 +26,7 @@ export async function createTask(title: string, priority: string) {
       title: texto,
       priority: validPriority as "High" | "Mid" | "Low",
       completed: false,
-      userId: session.user.id, // Vínculo com o usuário
+      userId: session.user.id,
     },
   });
 
@@ -36,12 +34,10 @@ export async function createTask(title: string, priority: string) {
   return newTask;
 }
 
-// 2. Deletar (Soft Delete)
 export async function deleteAction(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Não autorizado");
 
-  // Só deleta se for dono
   await prisma.task.update({
     where: { 
       id,
@@ -53,7 +49,6 @@ export async function deleteAction(id: string) {
   revalidatePath("/");
 }
 
-// 3. Toggle (Concluir/Reabrir)
 export async function toggleAction(id: string, currentStatus: boolean) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Não autorizado");
@@ -69,7 +64,6 @@ export async function toggleAction(id: string, currentStatus: boolean) {
   revalidatePath("/");
 }
 
-// 4. Criar Usuário
 export async function registerUser(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
@@ -101,7 +95,4 @@ export async function registerUser(formData: FormData) {
     console.error("Erro ao criar conta", error);
     throw new Error("Erro ao criar usuário.");
   }
-
-  // O REDIRECT PRECISA FICAR FORA E DEPOIS DO CATCH
-  redirect("/auth/signin");
 }
