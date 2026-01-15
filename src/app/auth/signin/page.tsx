@@ -5,12 +5,14 @@ import { signIn } from "next-auth/react";
 import { registerUser } from "@/app/actions";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,8 +21,13 @@ export default function AuthPage() {
 
     try {
       if (isLogin) {
-        const res = await signIn("credentials", { email, password, redirect: false });
-        if (res?.error) throw new Error("Credenciais inválidas");
+        const res = await signIn("credentials", { 
+          email, 
+          password, 
+          redirect: false 
+        });
+        
+        if (res?.error) throw new Error("E-mail ou senha incorretos");
         
         toast.success("Bem-vindo!", { id: load });
         router.push("/tasks");
@@ -32,11 +39,25 @@ export default function AuthPage() {
         formData.append("password", password);
 
         await registerUser(formData);
-        toast.success("Conta criada! Faça login.", { id: load });
-        setIsLogin(true);
+
+        const res = await signIn("credentials", { 
+          email, 
+          password, 
+          redirect: false 
+        });
+
+        if (res?.error) {
+          toast.success("Conta criada! Por favor, faça login.", { id: load });
+          setIsLogin(true);
+        } else {
+          toast.success("Conta criada e logada!", { id: load });
+          router.push("/tasks");
+          router.refresh();
+        }
       }
-    } catch (err: any) {
-      toast.error(err.message, { id: load });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido";
+      toast.error(errorMessage, { id: load });
     }
   };
 
@@ -69,21 +90,33 @@ export default function AuthPage() {
             className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500"
             onChange={(e) => setEmail(e.target.value)}
           />
-          <input
-            type="password"
-            placeholder="Senha"
-            required
-            className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500"
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Senha"
+              required
+              className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white outline-none focus:ring-2 focus:ring-blue-500 pr-12"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+              aria-label={showPassword ? "Esconder senha" : "Mostrar senha"}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
-          <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all">
-            {isLogin ? "Entrar" : "Cadastrar"}
+          <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all active:scale-95">
+            {isLogin ? "Entrar" : "Cadastrar e Entrar"}
           </button>
         </form>
 
         <div className="flex flex-col gap-4">
           <button 
+            type="button"
             onClick={() => setIsLogin(!isLogin)}
             className="text-sm text-slate-400 hover:text-white transition"
           >
@@ -100,6 +133,7 @@ export default function AuthPage() {
           </div>
 
           <button
+            type="button"
             onClick={() => signIn("google", { callbackUrl: "/tasks" })}
             className="w-full py-3 bg-white text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 transition-all"
           >
@@ -110,4 +144,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
