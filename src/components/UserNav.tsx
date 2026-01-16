@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { LogOut, User, Settings, CheckCircle } from "lucide-react";
+import { LogOut, User, Settings, CheckCircle, LayoutDashboard } from "lucide-react";
+import Link from "next/link";
 import { signOut } from "next-auth/react";
 
 export default function UserNav({ user }: { user: any }) {
@@ -30,12 +31,34 @@ export default function UserNav({ user }: { user: any }) {
             </div>
 
             <div className="p-2">
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition">
+              <Link 
+                href="/dashboard" 
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition"
+              >
+                <LayoutDashboard size={18} /> Dashboard
+              </Link>
+              <Link 
+                href="/dashboard/tasks" 
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition"
+              >
+                <CheckCircle size={18} /> Minhas Tarefas
+              </Link>
+              <Link 
+                href="/dashboard/profile" 
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition"
+              >
                 <User size={18} /> Perfil
-              </button>
-              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition">
+              </Link>
+              <Link 
+                href="/dashboard/settings" 
+                onClick={() => setIsOpen(false)}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-xl transition"
+              >
                 <Settings size={18} /> Configurações
-              </button>
+              </Link>
             </div>
 
             <div className="p-2 border-t border-gray-50">

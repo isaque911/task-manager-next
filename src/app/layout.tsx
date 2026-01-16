@@ -47,7 +47,7 @@ export default function RootLayout({
               
               <div className="flex items-center gap-4 sm:gap-6 text-sm font-medium">
                 <Link href="/" className="hidden xs:inline hover:text-blue-400 transition">Home</Link>
-                <Link href="/tasks" className="hover:text-blue-400 transition">Tarefas</Link>
+
                 <UserMenu />
               </div>
             </nav>

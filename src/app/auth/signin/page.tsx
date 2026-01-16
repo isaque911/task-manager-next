@@ -30,7 +30,7 @@ export default function AuthPage() {
         if (res?.error) throw new Error("E-mail ou senha incorretos");
         
         toast.success("Bem-vindo!", { id: load });
-        router.push("/tasks");
+        router.push("/dashboard");
         router.refresh();
       } else {
         const formData = new FormData();
@@ -51,7 +51,7 @@ export default function AuthPage() {
           setIsLogin(true);
         } else {
           toast.success("Conta criada e logada!", { id: load });
-          router.push("/tasks");
+          router.push("/dashboard");
           router.refresh();
         }
       }
@@ -134,7 +134,7 @@ export default function AuthPage() {
 
           <button
             type="button"
-            onClick={() => signIn("google", { callbackUrl: "/tasks" })}
+            onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
             className="w-full py-3 bg-white text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 transition-all"
           >
             Entrar com Google
