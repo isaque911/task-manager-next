@@ -1,9 +1,10 @@
-import { requireUser } from "@/lib/auth-guard";
+import { auth } from "@/auth";
 import Link from "next/link";
 import { CheckCircle, User, Settings, BarChart3 } from "lucide-react";
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  const session = await auth();
+  const user = session?.user;
 
   const cards = [
     {
@@ -39,7 +40,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-white">Olá, {user.name}! 👋</h1>
+        <h1 className="text-3xl font-bold text-white">Olá, {user?.name}! 👋</h1>
         <p className="text-slate-400 mt-2">Bem-vindo ao seu painel de controle.</p>
       </div>
 

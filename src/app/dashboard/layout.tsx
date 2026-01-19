@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth-guard";
+import { auth } from "@/auth";
 import UserMenu from "@/components/UserMenu";
 import Link from "next/link";
 
@@ -7,7 +7,7 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await requireUser();
+  // O acesso é garantido pelo middleware
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col">

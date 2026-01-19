@@ -5,7 +5,7 @@ import TaskProvider from "@/contexts/TaskContext";
 import PaginationControls from "@/components/PaginationControls";
 import SearchBar from "@/components/SearchBar";
 import { prisma } from "@/lib/prisma";
-import { requireUser } from "@/lib/auth-guard";
+import { auth } from "@/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +15,10 @@ export default async function Tasks({
   searchParams: Promise<{ page?: string; query?: string }>;
 }) {
   
-  const user = await requireUser();
+  const session = await auth();
+  const user = session?.user;
+  
+  if (!user?.id) return null; // Segurança extra, embora o middleware já filtre
 
   const params = await searchParams;
   const page = Number(params.page) || 1;

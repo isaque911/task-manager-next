@@ -24,7 +24,7 @@ export default function PaginationControls({
     const params = new URLSearchParams();
     if (query) params.set("query", query);
     params.set("page", page.toString());
-    return `/tasks?${params.toString()}`;
+    return `/dashboard/tasks?${params.toString()}`;
   };
 
   return (
