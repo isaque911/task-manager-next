@@ -1,12 +1,14 @@
 "use server";
+
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { Priority, TaskStatus } from "@prisma/client";
 
-export async function createTask(title: string, priority: string) {
+export async function createTask(title: string, priority: Priority) {
   const session = await auth();
-  
+
   if (!session?.user?.id) {
     throw new Error("Usuário não logado");
   }
@@ -16,17 +18,29 @@ export async function createTask(title: string, priority: string) {
     throw new Error("Título inválido");
   }
 
-  let validPriority = priority;
-  if (!["High", "Mid", "Low"].includes(priority)) {
-    validPriority = "Low";
-  }
+  const lastTask = await prisma.task.findFirst({
+    where: {
+      userId: session.user.id,
+      deletedAt: null,
+    },
+    orderBy: { order: "desc" },
+    select: { order: true },
+  });
+
+  const nextOrder = (lastTask?.order ?? 0) + 1;
+
+  const validPriority: Priority = Object.values(Priority).includes(priority)
+    ? priority
+    : Priority.Low;
 
   const newTask = await prisma.task.create({
     data: {
       title: texto,
-      priority: validPriority as "High" | "Mid" | "Low",
+      priority: validPriority,
       completed: false,
       userId: session.user.id,
+      order: nextOrder,
+      status: TaskStatus.TODO,
     },
   });
 
@@ -38,29 +52,38 @@ export async function deleteAction(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Não autorizado");
 
-  await prisma.task.update({
-    where: { 
+  await prisma.task.updateMany({
+    where: {
       id,
-      userId: session.user.id 
+      userId: session.user.id,
+      deletedAt: null,
     },
     data: { deletedAt: new Date() },
   });
-  
+
   revalidatePath("/");
 }
 
-export async function toggleAction(id: string, currentStatus: boolean) {
+export async function toggleAction(id: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Não autorizado");
 
-  await prisma.task.update({
-    where: { 
+  const task = await prisma.task.findFirst({
+    where: {
       id,
-      userId: session.user.id
+      userId: session.user.id,
+      deletedAt: null,
     },
-    data: { completed: !currentStatus },
+    select: { completed: true },
   });
-  
+
+  if (!task) throw new Error("Task não encontrada");
+
+  await prisma.task.update({
+    where: { id },
+    data: { completed: !task.completed },
+  });
+
   revalidatePath("/");
 }
 
@@ -70,15 +93,19 @@ export async function registerUser(formData: FormData) {
   const password = formData.get("password") as string;
 
   if (!name || !email || !password) {
-    throw new Error("Preenche todos os campos.");
+    throw new Error("Preencha todos os campos.");
+  }
+
+  if (password.length < 8) {
+    throw new Error("A senha deve ter pelo menos 8 caracteres.");
   }
 
   const existingUser = await prisma.user.findUnique({
     where: { email },
   });
-  
+
   if (existingUser) {
-    throw new Error("Este e-mail já esta cadastrado.");
+    throw new Error("Este e-mail já está cadastrado.");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
