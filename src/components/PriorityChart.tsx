@@ -1,5 +1,5 @@
 "use client";
-
+import { Priority } from "@prisma/client";
 import {
   PieChart,
   Pie,
@@ -8,8 +8,6 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
-type Priority = "High" | "Mid" | "Low";
 
 interface DataPoint {
   name: Priority; // <-- aqui a solução

@@ -1,3 +1,4 @@
+import { Priority } from "@prisma/client"
 import { requireUser } from "@/lib/auth-guard";  
 import { prisma } from "@/lib/prisma";  
 import PriorityChart from "@/components/PriorityChart";  
@@ -19,11 +20,11 @@ export default async function StatsPage() {
   
   const pending = total - completed;  
     
-  const chartData = [  
-    { name: "High", value: high },  
-    { name: "Mid", value: mid },  
-    { name: "Low", value: low },  
-  ];  
+  const chartData = [
+    { name: Priority.High, value: high },
+      { name: Priority.Mid, value: mid },
+        { name: Priority.Low, value: low },
+        ];
   
   return (  
     <div className="space-y-8">  
