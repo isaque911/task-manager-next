@@ -1,49 +1,51 @@
 "use client";
 
+import type { Priority } from "@/contexts/TaskContext";
+
 interface TaskInputProps {
   title: string;
   onTitleChange: (value: string) => void;
+  priority: Priority;
+  onPriorityChange: (value: Priority) => void;
   onAdd: () => void;
-  priority: string;
-  onPriorityChange: (value: string) => void;
   isLoading: boolean;
 }
 
 export default function TaskInput({
   title,
   onTitleChange,
-  onAdd,
   priority,
   onPriorityChange,
+  onAdd,
   isLoading,
 }: TaskInputProps) {
   return (
-    <div className="flex gap-2">
+    <div className="space-y-2">
       <input
         value={title}
         onChange={(e) => onTitleChange(e.target.value)}
-        disabled={isLoading}
-        maxLength={40}
-        className="w-full bg-slate-800 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-50 placeholder-slate-400 disabled:opacity-50"
-        placeholder="Descreva sua tarefa"
+        placeholder="Nova tarefa"
+        className="w-full rounded-md bg-slate-800 border border-slate-700 p-2 text-white"
       />
+
       <select
         value={priority}
-        onChange={(e) => onPriorityChange(e.target.value)}
-        disabled={isLoading}
-        className="bg-slate-800 rounded-lg border border-slate-700 text-white disabled:opacity-50"
+        onChange={(e) => onPriorityChange(e.target.value as Priority)}
+        className="w-full rounded-md bg-slate-800 border border-slate-700 p-2 text-white"
       >
         <option value="High">Alta</option>
         <option value="Mid">Média</option>
         <option value="Low">Baixa</option>
       </select>
+
       <button
         onClick={onAdd}
         disabled={isLoading}
-        className="px-3 py-2 rounded text-sm font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 p-2 rounded-md"
       >
-        {isLoading ? "..." : "Adicionar"}
+        {isLoading ? "Adicionando..." : "Adicionar"}
       </button>
     </div>
   );
 }
+

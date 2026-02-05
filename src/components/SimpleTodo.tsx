@@ -4,15 +4,13 @@ import { useState } from "react";
 import TaskInput from "./TaskInput";
 import TaskList from "./TaskList";
 import { useTasks } from "@/contexts/TaskContext";
-import { Priority } from "@prisma/client"; 
+import type { Priority } from "@/contexts/TaskContext";
 
 export default function SimpleTodo() {
   const { tasks, addTask, removeTask, toggleTask } = useTasks();
 
   const [title, setTitle] = useState("");
-  const [priority, setPriority] = useState<Priority>(Priority.Low);
-  // agora NÃO é string, é Priority de verdade
-
+  const [priority, setPriority] = useState<Priority>("Low");
   const [isLoading, setIsLoading] = useState(false);
 
   async function handleAdd() {
@@ -24,7 +22,7 @@ export default function SimpleTodo() {
     setIsLoading(false);
 
     setTitle("");
-    setPriority(Priority.Low); // mantém consistência
+    setPriority("Low");
   }
 
   return (
@@ -46,3 +44,4 @@ export default function SimpleTodo() {
     </div>
   );
 }
+
